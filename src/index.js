@@ -1,1 +1,1 @@
-console.log('Hola Jose');
+import './loadCategories';
