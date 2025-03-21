@@ -14,7 +14,7 @@ categories.forEach((category) => {
     newCategory.innerHTML = template;
     newCategory.classList.add('categoria');
     newCategory.href = '#';
-    newCategory.dataset.category = category.id;
+    newCategory.dataset.categoria = category.id;
 
     containerCategories.append(newCategory);
 });

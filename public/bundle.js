@@ -1,6 +1,6 @@
 'use strict';
 
-var data = {
+var dataPhotos = {
     photos: {
         machupichu: [
             {
@@ -227,7 +227,7 @@ var data = {
     },
 };
 
-const { photos } = data;
+const { photos } = dataPhotos;
 
 var dataCategories = {
     categories: [
@@ -241,7 +241,7 @@ var dataCategories = {
 };
 
 const { categories } = dataCategories;
-const containerCategories = document.getElementById('categorias');
+const containerCategories$1 = document.getElementById('categorias');
 
 categories.forEach((category) => {
     const newCategory = document.createElement('a');
@@ -255,7 +255,33 @@ categories.forEach((category) => {
     newCategory.innerHTML = template;
     newCategory.classList.add('categoria');
     newCategory.href = '#';
-    newCategory.dataset.category = category.id;
+    newCategory.dataset.categoria = category.id;
 
-    containerCategories.append(newCategory);
+    containerCategories$1.append(newCategory);
+});
+
+const containerCategories = document.getElementById('categorias');
+const gallery = document.getElementById('galeria');
+
+containerCategories.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    if (e.target.closest('a')) {
+        gallery.classList.add('galeria--active');
+        document.body.style.overflow = 'hidden';
+
+        const categoryActive = e.target.dataset.categoria;
+
+        const photosActive = dataPhotos.photos[categoryActive];
+
+        photosActive.forEach((foto) => {
+            const slide = `
+            <a href="#" class="galeria__carousel-slide">
+				<img class="galeria__carousel-image" src="${foto.ruta}" alt="" />
+			</a>
+            `;
+            gallery.querySelector('.galeria__carousel-slides').innerHTML += slide;
+        });
+        gallery.querySelector('.galeria__carousel-slide').classList.add('galeria__carousel-slide--active');
+    }
 });
