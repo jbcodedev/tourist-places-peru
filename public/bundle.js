@@ -1,6 +1,6 @@
 'use strict';
 
-var dataPhotos = {
+var data = {
     photos: {
         machupichu: [
             {
@@ -227,7 +227,7 @@ var dataPhotos = {
     },
 };
 
-const { photos } = dataPhotos;
+const { photos } = data;
 
 var dataCategories = {
     categories: [
@@ -260,28 +260,104 @@ categories.forEach((category) => {
     containerCategories$1.append(newCategory);
 });
 
+const gallery$3 = document.getElementById('galeria');
+const loadImage = (id, nombre, ruta, descripcion) => {
+    gallery$3.querySelector('.galeria__imagen').src = ruta;
+    gallery$3.querySelector('.galeria__imagen').dataset.idImagen = id;
+    gallery$3.querySelector('.galeria__titulo').innerText = nombre;
+    gallery$3.querySelector('.galeria__descripcion-imagen-activa').innerText = descripcion;
+
+    const categoryActual = gallery$3.dataset.categoria;
+    const photos = data.photos[categoryActual];
+
+    let indexImageActual;
+    photos.forEach((foto, index) => {
+        if (foto.id === id) {
+            indexImageActual = index;
+        }
+    });
+
+    // Marcando la image del carousel como activa
+    if (gallery$3.querySelectorAll('.galeria__carousel-slide').length > 0) {
+        // Eliminando la clase active de cualquier slide
+        gallery$3.querySelector('.galeria__carousel-slide--active').classList.remove('galeria__carousel-slide--active');
+        // Agrega la clase active
+        gallery$3.querySelectorAll('.galeria__carousel-slide')[indexImageActual].classList.add('galeria__carousel-slide--active');
+    }
+};
+
 const containerCategories = document.getElementById('categorias');
-const gallery = document.getElementById('galeria');
+const gallery$2 = document.getElementById('galeria');
 
 containerCategories.addEventListener('click', (e) => {
     e.preventDefault();
 
     if (e.target.closest('a')) {
-        gallery.classList.add('galeria--active');
+        gallery$2.classList.add('galeria--active');
         document.body.style.overflow = 'hidden';
 
-        const categoryActive = e.target.dataset.categoria;
+        const categoryActive = e.target.closest('a').dataset.categoria;
+        gallery$2.dataset.categoria = categoryActive;
 
-        const photosActive = dataPhotos.photos[categoryActive];
+        const photosActive = data.photos[categoryActive];
+
+        // funcionalidad para eliminar fotos anteriores
+        const carousel = gallery$2.querySelector('.galeria__carousel-slides');
+        carousel.innerHTML = '';
+
+        // Destructurando para extraer la informacion de la foto seleccionada
+        // console.log(photosActive[0]);
+        const { id, nombre, ruta, descripcion } = photosActive[0];
+        // Llamando a la funcion para cargar la imagen
+        loadImage(id, nombre, ruta, descripcion);
 
         photosActive.forEach((foto) => {
             const slide = `
             <a href="#" class="galeria__carousel-slide">
-				<img class="galeria__carousel-image" src="${foto.ruta}" alt="" />
+				<img class="galeria__carousel-image" src="${foto.ruta}" data-id="${foto.id}" alt="" />
 			</a>
             `;
-            gallery.querySelector('.galeria__carousel-slides').innerHTML += slide;
+            gallery$2.querySelector('.galeria__carousel-slides').innerHTML += slide;
         });
-        gallery.querySelector('.galeria__carousel-slide').classList.add('galeria__carousel-slide--active');
+        gallery$2.querySelector('.galeria__carousel-slide').classList.add('galeria__carousel-slide--active');
+    }
+});
+
+const gallery$1 = document.getElementById('galeria');
+const closeGallery = () => {
+    gallery$1.classList.remove('galeria--active');
+    // Regresando el scroll en el sitio
+    document.body.style.overflow = '';
+};
+
+const slideClick = (e) => {
+    let ruta, nombre, descripcion;
+    const id = parseInt(e.target.dataset.id);
+    const galeria = document.getElementById('galeria');
+    const categoryActive = galeria.dataset.categoria;
+    // console.log('Hiciste click en un slide', id, categoryActive);
+
+    data.photos[categoryActive].forEach((foto) => {
+        if (foto.id === id) {
+            ruta = foto.ruta;
+            nombre = foto.nombre;
+            descripcion = foto.descripcion;
+        }
+    });
+    loadImage(id, nombre, ruta, descripcion);
+};
+
+const gallery = document.getElementById('galeria');
+gallery.addEventListener('click', (e) => {
+    const button = e.target.closest('button');
+
+    // Cerrar galeria
+    if (button?.dataset?.accion === 'cerrar-galeria') {
+        closeGallery();
+    }
+
+    // Carousel slide click
+    if (e.target.dataset.id) {
+        slideClick(e);
     }
 });
