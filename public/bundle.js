@@ -285,6 +285,30 @@ const loadImage = (id, nombre, ruta, descripcion) => {
         gallery$3.querySelectorAll('.galeria__carousel-slide')[indexImageActual].classList.add('galeria__carousel-slide--active');
     }
 };
+const loadPreviousNext = (direction) => {
+    const categoryActual = gallery$3.dataset.categoria;
+    const photos = data.photos[categoryActual];
+    const idImageActual = parseInt(gallery$3.querySelector('.galeria__imagen').dataset.idImagen);
+
+    let indexImageActual;
+    photos.forEach((photo, index) => {
+        if (photo.id === idImageActual) {
+            indexImageActual = index;
+        }
+    });
+
+    if (direction === 'siguiente') {
+        if (photos[indexImageActual + 1]) {
+            const { id, nombre, ruta, descripcion } = photos[indexImageActual + 1];
+            loadImage(id, nombre, ruta, descripcion);
+        }
+    } else if (direction === 'anterior') {
+        if (photos[indexImageActual - 1]) {
+            const { id, nombre, ruta, descripcion } = photos[indexImageActual - 1];
+            loadImage(id, nombre, ruta, descripcion);
+        }
+    }
+};
 
 const containerCategories = document.getElementById('categorias');
 const gallery$2 = document.getElementById('galeria');
@@ -359,5 +383,14 @@ gallery.addEventListener('click', (e) => {
     // Carousel slide click
     if (e.target.dataset.id) {
         slideClick(e);
+    }
+
+    // Siguiente imagen - Next
+    if (button?.dataset?.accion === 'siguiente-imagen') {
+        loadPreviousNext('siguiente');
+    }
+    // Anterior imagen - Previous
+    if (button?.dataset?.accion === 'anterior-imagen') {
+        loadPreviousNext('anterior');
     }
 });

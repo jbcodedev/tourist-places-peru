@@ -25,4 +25,29 @@ const loadImage = (id, nombre, ruta, descripcion) => {
         gallery.querySelectorAll('.galeria__carousel-slide')[indexImageActual].classList.add('galeria__carousel-slide--active');
     }
 }
-export { loadImage };
+const loadPreviousNext = (direction) => {
+    const categoryActual = gallery.dataset.categoria;
+    const photos = data.photos[categoryActual];
+    const idImageActual = parseInt(gallery.querySelector('.galeria__imagen').dataset.idImagen);
+
+    let indexImageActual;
+    photos.forEach((photo, index) => {
+        if (photo.id === idImageActual) {
+            indexImageActual = index;
+        }
+    });
+
+    if (direction === 'siguiente') {
+        if (photos[indexImageActual + 1]) {
+            const { id, nombre, ruta, descripcion } = photos[indexImageActual + 1];
+            loadImage(id, nombre, ruta, descripcion);
+        }
+    } else if (direction === 'anterior') {
+        if (photos[indexImageActual - 1]) {
+            const { id, nombre, ruta, descripcion } = photos[indexImageActual - 1];
+            loadImage(id, nombre, ruta, descripcion);
+        }
+    }
+};
+
+export { loadImage, loadPreviousNext };
