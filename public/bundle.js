@@ -260,14 +260,14 @@ categories.forEach((category) => {
     containerCategories$1.append(newCategory);
 });
 
-const gallery$3 = document.getElementById('galeria');
+const gallery$4 = document.getElementById('galeria');
 const loadImage = (id, nombre, ruta, descripcion) => {
-    gallery$3.querySelector('.galeria__imagen').src = ruta;
-    gallery$3.querySelector('.galeria__imagen').dataset.idImagen = id;
-    gallery$3.querySelector('.galeria__titulo').innerText = nombre;
-    gallery$3.querySelector('.galeria__descripcion-imagen-activa').innerText = descripcion;
+    gallery$4.querySelector('.galeria__imagen').src = ruta;
+    gallery$4.querySelector('.galeria__imagen').dataset.idImagen = id;
+    gallery$4.querySelector('.galeria__titulo').innerText = nombre;
+    gallery$4.querySelector('.galeria__descripcion-imagen-activa').innerText = descripcion;
 
-    const categoryActual = gallery$3.dataset.categoria;
+    const categoryActual = gallery$4.dataset.categoria;
     const photos = data.photos[categoryActual];
 
     let indexImageActual;
@@ -278,17 +278,17 @@ const loadImage = (id, nombre, ruta, descripcion) => {
     });
 
     // Marcando la image del carousel como activa
-    if (gallery$3.querySelectorAll('.galeria__carousel-slide').length > 0) {
+    if (gallery$4.querySelectorAll('.galeria__carousel-slide').length > 0) {
         // Eliminando la clase active de cualquier slide
-        gallery$3.querySelector('.galeria__carousel-slide--active').classList.remove('galeria__carousel-slide--active');
+        gallery$4.querySelector('.galeria__carousel-slide--active').classList.remove('galeria__carousel-slide--active');
         // Agrega la clase active
-        gallery$3.querySelectorAll('.galeria__carousel-slide')[indexImageActual].classList.add('galeria__carousel-slide--active');
+        gallery$4.querySelectorAll('.galeria__carousel-slide')[indexImageActual].classList.add('galeria__carousel-slide--active');
     }
 };
 const loadPreviousNext = (direction) => {
-    const categoryActual = gallery$3.dataset.categoria;
+    const categoryActual = gallery$4.dataset.categoria;
     const photos = data.photos[categoryActual];
-    const idImageActual = parseInt(gallery$3.querySelector('.galeria__imagen').dataset.idImagen);
+    const idImageActual = parseInt(gallery$4.querySelector('.galeria__imagen').dataset.idImagen);
 
     let indexImageActual;
     photos.forEach((photo, index) => {
@@ -311,22 +311,22 @@ const loadPreviousNext = (direction) => {
 };
 
 const containerCategories = document.getElementById('categorias');
-const gallery$2 = document.getElementById('galeria');
+const gallery$3 = document.getElementById('galeria');
 
 containerCategories.addEventListener('click', (e) => {
     e.preventDefault();
 
     if (e.target.closest('a')) {
-        gallery$2.classList.add('galeria--active');
+        gallery$3.classList.add('galeria--active');
         document.body.style.overflow = 'hidden';
 
         const categoryActive = e.target.closest('a').dataset.categoria;
-        gallery$2.dataset.categoria = categoryActive;
+        gallery$3.dataset.categoria = categoryActive;
 
         const photosActive = data.photos[categoryActive];
 
         // funcionalidad para eliminar fotos anteriores
-        const carousel = gallery$2.querySelector('.galeria__carousel-slides');
+        const carousel = gallery$3.querySelector('.galeria__carousel-slides');
         carousel.innerHTML = '';
 
         // Destructurando para extraer la informacion de la foto seleccionada
@@ -341,15 +341,15 @@ containerCategories.addEventListener('click', (e) => {
 				<img class="galeria__carousel-image" src="${foto.ruta}" data-id="${foto.id}" alt="" />
 			</a>
             `;
-            gallery$2.querySelector('.galeria__carousel-slides').innerHTML += slide;
+            gallery$3.querySelector('.galeria__carousel-slides').innerHTML += slide;
         });
-        gallery$2.querySelector('.galeria__carousel-slide').classList.add('galeria__carousel-slide--active');
+        gallery$3.querySelector('.galeria__carousel-slide').classList.add('galeria__carousel-slide--active');
     }
 });
 
-const gallery$1 = document.getElementById('galeria');
+const gallery$2 = document.getElementById('galeria');
 const closeGallery = () => {
-    gallery$1.classList.remove('galeria--active');
+    gallery$2.classList.remove('galeria--active');
     // Regresando el scroll en el sitio
     document.body.style.overflow = '';
 };
@@ -369,6 +369,58 @@ const slideClick = (e) => {
         }
     });
     loadImage(id, nombre, ruta, descripcion);
+};
+
+const gallery$1 = document.getElementById('galeria');
+const carousel = (direction) => {
+    // Objeto con opciones del observador
+    const options = {
+        root: document.querySelector('.galeria__carousel'),
+        rootMargin: '0px',
+        threshold: 0.9,
+    };
+    // Instancia de IntersectionObserver y callback con funcion cada que hay cambios de los elementos vigilados
+    const observer = new IntersectionObserver((inputs) => {
+        const slidesVisibles = inputs.filter((input) => {
+            // Por cada entrada, si es visible
+            if (input.isIntersecting === true) {
+                return input;
+            }
+        });
+        if (direction === 'atras') {
+            // Obteniendo el primer slide visible por medio de su index
+            const firstSlideVisible = slidesVisibles[0];
+            const indexFirstSlideVisible = inputs.indexOf(firstSlideVisible);
+
+            if (indexFirstSlideVisible >= 1) {
+                inputs[indexFirstSlideVisible - 1].target.scrollIntoView({
+                    behavior: 'smooth',
+                    inline: 'start',
+                });
+            }
+        } else if (direction === 'adelante') {
+            // Obteniendo el ultimo slide visible por medio de su index
+            const lastSlideVisible = slidesVisibles[slidesVisibles.length - 1];
+            const indexLastSlideVisible = inputs.indexOf(lastSlideVisible);
+
+            if (inputs.length - 1 > indexLastSlideVisible) {
+                // Para acceder al siguiente slide y realizar scroll
+                inputs[indexLastSlideVisible + 1].target.scrollIntoView({
+                    behavior: 'smooth',
+                    inline: 'start',
+                });
+            }        }
+        const slides = gallery$1.querySelectorAll('.galeria__carousel-slide');
+        // Por cada slide se ejecuta una funcion para dejar de observar
+        slides.forEach((slide) => {
+            observer.unobserve(slide);
+        });
+    }, options);
+    const slides = gallery$1.querySelectorAll('.galeria__carousel-slide');
+    // Por cada slide se ejecuta una funcion para observar
+    slides.forEach((slide) => {
+        observer.observe(slide);
+    });
 };
 
 const gallery = document.getElementById('galeria');
@@ -392,5 +444,14 @@ gallery.addEventListener('click', (e) => {
     // Anterior imagen - Previous
     if (button?.dataset?.accion === 'anterior-imagen') {
         loadPreviousNext('anterior');
+    }
+
+    // Carousel Adelante
+    if (button?.dataset?.accion === 'siguiente-slide') {
+        carousel('adelante');
+    }
+    // Carousel Atras
+    if (button?.dataset?.accion === 'anterior-slide') {
+        carousel('atras');
     }
 });
